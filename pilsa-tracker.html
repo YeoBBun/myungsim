@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>필사 기록</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #eef0e6;
+    --paper-2: #e3e5d8;
+    --surface: #ffffff;
+    --ink: #23241f;
+    --ink-soft: #6b6c5c;
+    --ink-faint: #97998a;
+    --accent: #2b3a67;
+    --accent-soft: #dde1ee;
+    --stamp: #ad3a2e;
+    --stamp-soft: #f4ded9;
+    --line: rgba(35,36,31,0.15);
+    --line-strong: rgba(35,36,31,0.3);
+    --radius: 3px;
+    --font-serif: "Noto Serif KR", "Nanum Myeongjo", ui-serif, Georgia, serif;
+    --font-sans: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", ui-sans-serif, system-ui, sans-serif;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #1b1c17;
+      --paper-2: #24251c;
+      --surface: #242519;
+      --ink: #ece9db;
+      --ink-soft: #b0ad9b;
+      --ink-faint: #7d7c6c;
+      --accent: #8b9cd6;
+      --accent-soft: #2c3350;
+      --stamp: #e08276;
+      --stamp-soft: #3c211d;
+      --line: rgba(236,233,219,0.16);
+      --line-strong: rgba(236,233,219,0.32);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1b1c17;
+    --paper-2: #24251c;
+    --surface: #242519;
+    --ink: #ece9db;
+    --ink-soft: #b0ad9b;
+    --ink-faint: #7d7c6c;
+    --accent: #8b9cd6;
+    --accent-soft: #2c3350;
+    --stamp: #e08276;
+    --stamp-soft: #3c211d;
+    --line: rgba(236,233,219,0.16);
+    --line-strong: rgba(236,233,219,0.32);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-tap-highlight-color: transparent;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body { min-height: 100%; padding-bottom: 48px; }
+  button, input, select, textarea { font-family: inherit; font-size: 15px; color: inherit; }
+  button { cursor: pointer; }
+  ::selection { background: var(--accent-soft); }
+
+  .wrap { max-width: 920px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  header.top {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 16px; margin-bottom: 22px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--line-strong);
+    padding-bottom: 18px;
+  }
+  header.top h1 {
+    font-family: var(--font-serif); font-weight: 700; font-size: 26px;
+    margin: 0; letter-spacing: -0.01em;
+  }
+  header.top p { margin: 4px 0 0; color: var(--ink-soft); font-size: 13.5px; }
+  .sync-state { font-size: 12.5px; color: var(--ink-faint); display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex: none; }
+  .sync-dot.warn { background: var(--stamp); }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-bottom: 24px; }
+  .stat { background: var(--surface); padding: 14px 16px; }
+  .stat .n { font-family: var(--font-serif); font-size: 26px; font-weight: 700; line-height: 1; }
+  .stat .l { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; }
+  .stat.warn .n { color: var(--stamp); }
+
+  section.panel {
+    background: var(--surface); border: 1px solid var(--line);
+    padding: 16px 18px; margin-bottom: 18px;
+  }
+  section.panel h2 {
+    font-size: 14px; font-weight: 700; margin: 0 0 12px;
+    color: var(--ink-soft);
+  }
+
+  .add-student-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .add-student-row input[type="text"] {
+    flex: 1; min-width: 160px; padding: 9px 10px; border: 1px solid var(--line-strong);
+    border-radius: var(--radius); background: var(--paper); color: var(--ink);
+  }
+  .add-student-row input[type="number"] {
+    width: 68px; flex: none; padding: 9px 10px; border: 1px solid var(--line-strong);
+    border-radius: var(--radius); background: var(--paper); color: var(--ink);
+  }
+  .btn {
+    padding: 9px 14px; border: 1px solid var(--line-strong); border-radius: var(--radius);
+    background: var(--surface); color: var(--ink); font-weight: 500;
+  }
+  .btn:hover { border-color: var(--ink-faint); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { opacity: 0.92; }
+  .btn.stamp { background: var(--stamp); border-color: var(--stamp); color: #fff; }
+  .btn.ghost { background: transparent; border-color: transparent; color: var(--ink-soft); padding: 6px 8px; }
+  .btn.ghost:hover { color: var(--ink); text-decoration: underline; }
+  .btn.danger { color: var(--stamp); border-color: var(--stamp); background: transparent; }
+  .btn.small { padding: 5px 10px; font-size: 13px; }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+
+  .bulk-toggle { font-size: 13px; color: var(--accent); background: none; border: none; padding: 8px 0 0; text-decoration: underline; }
+  textarea.bulk {
+    width: 100%; margin-top: 10px; min-height: 76px; padding: 9px 10px;
+    border: 1px solid var(--line-strong); border-radius: var(--radius);
+    background: var(--paper); color: var(--ink); resize: vertical;
+  }
+
+  .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .toolbar input[type="search"] {
+    padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: var(--radius);
+    background: var(--surface); color: var(--ink); min-width: 140px; flex: 1;
+  }
+  .toolbar select {
+    padding: 8px 10px; border: 1px solid var(--line-strong); border-radius: var(--radius);
+    background: var(--surface); color: var(--ink);
+  }
+
+  .legend { display: flex; align-items: center; gap: 16px; font-size: 12.5px; color: var(--ink-soft); margin-bottom: 10px; }
+  .legend .sw { width: 12px; height: 12px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: -2px; }
+  .legend .sw.done { background: var(--accent); border: 1px solid var(--accent); }
+  .legend .sw.pending { background: var(--paper-2); border: 1px solid var(--line-strong); }
+
+  .list { border: 1px solid var(--line); background: var(--surface); }
+  .row { padding: 12px 14px; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .row:last-child { border-bottom: none; }
+  .row:hover { background: var(--paper-2); }
+  .row-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .row .name { font-weight: 600; display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .row .name span.n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .name .meta { color: var(--ink-faint); font-weight: 400; font-family: var(--font-serif); flex: none; }
+  .row-actions { display: flex; gap: 6px; flex: none; }
+  .cells { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 10px; }
+  .cell {
+    width: 14px; height: 14px; border-radius: 2px; flex: none; cursor: pointer;
+    border: 1px solid var(--line-strong); background: var(--paper-2);
+    transition: transform 0.08s ease;
+  }
+  .cell:hover { border-color: var(--accent); transform: scale(1.15); }
+  .cell.done { background: var(--accent); border-color: var(--accent); }
+  .row-caption { margin-top: 8px; font-size: 12.5px; color: var(--ink-soft); }
+  .row-caption .rest { color: var(--stamp); font-weight: 600; }
+  .row-caption .rest.zero { color: var(--ink-faint); font-weight: 400; }
+
+  .empty { padding: 34px 18px; text-align: center; color: var(--ink-faint); font-size: 14px; }
+
+  .detail {
+    background: var(--paper-2); border-bottom: 1px solid var(--line);
+    padding: 14px 18px 16px;
+  }
+  .detail .edit-student {
+    display: grid; grid-template-columns: auto auto 1fr auto; gap: 8px; align-items: center;
+    margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px dashed var(--line-strong);
+  }
+  .detail .edit-student input[type="number"],
+  .detail .edit-student input[type="text"] {
+    padding: 7px 9px; border: 1px solid var(--line-strong); border-radius: var(--radius);
+    background: var(--surface); color: var(--ink);
+  }
+  .detail .edit-student input[type="number"] { width: 60px; }
+  .detail .edit-student input[type="text"] { min-width: 100px; }
+  .detail .add-assignment {
+    display: grid; grid-template-columns: auto 1fr auto auto; gap: 8px; align-items: center;
+    margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .detail .add-assignment input[type="number"],
+  .detail .add-assignment input[type="text"] {
+    padding: 7px 9px; border: 1px solid var(--line-strong); border-radius: var(--radius);
+    background: var(--surface); color: var(--ink);
+  }
+  .detail .add-assignment input[type="number"] { width: 68px; }
+  .detail .add-assignment input[type="text"] { min-width: 100px; }
+
+  .entry {
+    display: flex; align-items: center; gap: 10px; padding: 8px 0;
+    border-top: 1px solid var(--line); font-size: 13.5px;
+  }
+  .entry:first-of-type { border-top: none; }
+  .entry .d { color: var(--ink-soft); width: 84px; flex: none; font-family: var(--font-serif); }
+  .entry .p { font-weight: 600; width: 44px; flex: none; }
+  .entry .r { flex: 1; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .entry .status { flex: none; }
+  .tag {
+    font-size: 12px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line-strong);
+    background: var(--surface); color: var(--ink-soft);
+  }
+  .tag.done { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+
+  .settings-body { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 14px; }
+  .field label { display: block; font-size: 12.5px; color: var(--ink-soft); margin-bottom: 5px; }
+  .field input {
+    width: 100%; padding: 8px 9px; border: 1px solid var(--line-strong); border-radius: var(--radius);
+    background: var(--paper); color: var(--ink);
+  }
+  .settings-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .hint { font-size: 12px; color: var(--ink-faint); }
+
+  .banner {
+    background: var(--stamp-soft); color: var(--stamp); border: 1px solid var(--stamp);
+    padding: 9px 12px; border-radius: var(--radius); font-size: 13px; margin-bottom: 16px;
+    display: none;
+  }
+  .banner.show { display: block; }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(20,20,16,0.45);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; z-index: 1000;
+  }
+  .modal-box {
+    background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius);
+    padding: 20px; max-width: 340px; width: 100%;
+  }
+  .modal-box p { margin: 0 0 16px; font-size: 14px; line-height: 1.5; color: var(--ink); }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+  @media (max-width: 620px) {
+    .settings-body { grid-template-columns: 1fr 1fr; }
+    .detail .add-assignment { grid-template-columns: 1fr 1fr; }
+    .detail .edit-student { grid-template-columns: 1fr 1fr; }
+    .entry .r { white-space: normal; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>필사 기록</h1>
+      <p>누가 몇 장을 써야 하고, 몇 장을 냈는지 한 곳에서 확인합니다.</p>
+    </div>
+    <div class="sync-state" id="syncState"><span class="sync-dot" id="syncDot"></span><span id="syncLabel">불러오는 중…</span></div>
+  </header>
+
+  <div class="banner" id="banner"></div>
+
+  <div class="stats" id="stats"></div>
+
+  <section class="panel">
+    <h2>학생 추가</h2>
+    <div class="add-student-row">
+      <input type="number" id="newStudentClass" placeholder="반" min="0" step="1" />
+      <input type="number" id="newStudentNumber" placeholder="번호" min="0" step="1" />
+      <input type="text" id="newStudentName" placeholder="이름 입력 후 Enter" />
+      <button class="btn primary" id="addStudentBtn">추가</button>
+      <button class="btn" id="settingsToggleBtn">설정</button>
+    </div>
+    <button class="bulk-toggle" id="bulkToggleBtn">여러 명 한 번에 추가</button>
+    <textarea class="bulk" id="bulkNames" placeholder="한 줄에 한 명씩 붙여넣으세요. &quot;번호 이름&quot; 형식(예: 3 홍길동)도 인식합니다" style="display:none"></textarea>
+    <div style="display:none; margin-top:8px;" id="bulkAddWrap">
+      <button class="btn primary small" id="bulkAddBtn">일괄 추가</button>
+    </div>
+  </section>
+
+  <section class="panel" id="settingsPanel" style="display:none">
+    <h2>규칙 설정</h2>
+    <div class="settings-body">
+      <div class="field">
+        <label>1회 부여 시 기본 분량(장)</label>
+        <input type="number" id="setBase" min="0" step="1" />
+      </div>
+      <div class="field">
+        <label>부여마다 늘어나는 분량(장)</label>
+        <input type="number" id="setIncrement" min="0" step="1" />
+      </div>
+    </div>
+    <div class="settings-actions">
+      <button class="btn primary small" id="saveSettingsBtn">설정 저장</button>
+      <button class="btn danger small" id="resetAllBtn">전체 기록 초기화</button>
+    </div>
+    <p class="hint" id="settingsHint" style="margin-top:10px"></p>
+  </section>
+
+
+  <div class="toolbar">
+    <input type="search" id="searchInput" placeholder="이름 검색" />
+    <select id="sortSelect">
+      <option value="pending">미제출 많은 순</option>
+      <option value="recent">최근 부여 순</option>
+      <option value="number">번호 순</option>
+      <option value="name">이름 순</option>
+    </select>
+  </div>
+
+  <div class="legend">
+    <span><span class="sw done"></span>제출 완료</span>
+    <span><span class="sw pending"></span>미제출</span>
+    <span>· 한 칸 = 한 장, 칸을 클릭하면 제출 처리됩니다</span>
+  </div>
+
+  <div class="list" id="list"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var state = {
+    students: [],
+    assignments: [],
+    pages: [],
+    settings: { baseAmount: 1, increment: 1 },
+    ready: { students: false, assignments: false, pages: false }
+  };
+  var ui = {
+    expanded: null,
+    search: "",
+    sort: "pending",
+    bulkOpen: false
+  };
+  var db = null;
+  var fallback = false;
+  var settingsSaved = false;
+
+  var LS_KEY = "pilsa_tracker_v1";
+
+  // ---------- storage: localStorage fallback ----------
+  function loadLocal() {
+    try {
+      var raw = localStorage.getItem(LS_KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        state.students = parsed.students || [];
+        state.assignments = parsed.assignments || [];
+        state.pages = parsed.pages || [];
+        state.settings = parsed.settings || state.settings;
+        settingsSaved = true;
+      }
+    } catch (e) { /* ignore corrupt local data */ }
+    state.ready.students = true;
+    state.ready.assignments = true;
+    state.ready.pages = true;
+  }
+  function saveLocal() {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify({
+        students: state.students, assignments: state.assignments, pages: state.pages, settings: state.settings
+      }));
+    } catch (e) { showBanner("이 기기에 저장하는 중 문제가 발생했습니다."); }
+  }
+  function uid() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return "id" + Date.now() + Math.random().toString(16).slice(2);
+  }
+
+  // ---------- storage: db ----------
+  function handleDbError(e) {
+    if (!e) return;
+    if (e.code === "revoked") {
+      showBanner("이 페이지 접근 권한이 바뀌었습니다. 새로고침해 주세요.");
+    } else if (e.code === "not_granted" || e.code === "capability_disabled" || e.code === "capability_removed") {
+      // handled at init via fallback
+    } else {
+      showBanner("저장 중 문제가 발생했습니다. 다시 시도해 주세요.");
+    }
+  }
+
+  function subscribeAll() {
+    db.collection("students").orderBy("createdAt").onSnapshot(function (snap) {
+      state.students = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
+      state.ready.students = true;
+      setSyncOk();
+      render();
+    }, handleDbError);
+
+    db.collection("assignments").orderBy("createdAt").onSnapshot(function (snap) {
+      state.assignments = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
+      state.ready.assignments = true;
+      setSyncOk();
+      render();
+    }, handleDbError);
+
+    db.collection("pages").orderBy("createdAt").onSnapshot(function (snap) {
+      state.pages = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
+      state.ready.pages = true;
+      setSyncOk();
+      render();
+    }, handleDbError);
+
+    db.doc("settings/config").onSnapshot(function (snap) {
+      if (snap.exists) {
+        var data = snap.data() || {};
+        state.settings = {
+          baseAmount: typeof data.baseAmount === "number" ? data.baseAmount : state.settings.baseAmount,
+          increment: typeof data.increment === "number" ? data.increment : state.settings.increment
+        };
+        settingsSaved = true;
+      }
+      render();
+    }, handleDbError);
+  }
+
+  async function initStore() {
+    try {
+      if (window.claude && typeof window.claude.use === "function") {
+        db = await window.claude.use("db");
+      }
+    } catch (e) { db = null; }
+    if (db) {
+      subscribeAll();
+    } else {
+      fallback = true;
+      setSyncFallback();
+      loadLocal();
+      render();
+    }
+  }
+
+  async function addStudent(name, opts) {
+    name = (name || "").trim();
+    if (!name) return;
+    opts = opts || {};
+    var classroom = (typeof opts.classroom === "number" && !isNaN(opts.classroom)) ? opts.classroom : null;
+    var number = (typeof opts.number === "number" && !isNaN(opts.number)) ? opts.number : null;
+    var body = { name: name, classroom: classroom, number: number, createdAt: new Date().toISOString() };
+    if (db) {
+      try { await db.collection("students").add(body); }
+      catch (e) { handleDbError(e); }
+    } else {
+      body.id = uid();
+      state.students.push(body);
+      saveLocal(); render();
+    }
+  }
+
+  async function updateStudent(id, patch) {
+    if (db) {
+      try { await db.doc("students/" + id).update(patch); }
+      catch (e) { handleDbError(e); }
+    } else {
+      var s = state.students.find(function (x) { return x.id === id; });
+      if (s) { Object.assign(s, patch); }
+      saveLocal(); render();
+    }
+  }
+
+  async function removeStudent(id) {
+    var s = state.students.find(function (x) { return x.id === id; });
+    if (!s) return;
+    var ok = await confirmDialog(s.name + " 학생과 관련된 모든 기록을 삭제할까요?");
+    if (!ok) return;
+    var relatedAssignments = state.assignments.filter(function (a) { return a.studentId === id; });
+    var relatedPages = state.pages.filter(function (p) { return p.studentId === id; });
+    if (db) {
+      try {
+        await db.doc("students/" + id).delete();
+        await Promise.all(relatedAssignments.map(function (a) { return db.doc("assignments/" + a.id).delete(); }));
+        await Promise.all(relatedPages.map(function (p) { return db.doc("pages/" + p.id).delete(); }));
+      } catch (e) { handleDbError(e); }
+    } else {
+      state.students = state.students.filter(function (x) { return x.id !== id; });
+      state.assignments = state.assignments.filter(function (a) { return a.studentId !== id; });
+      state.pages = state.pages.filter(function (p) { return p.studentId !== id; });
+      saveLocal(); render();
+    }
+    if (ui.expanded === id) ui.expanded = null;
+    render();
+  }
+
+  async function addAssignment(studentId, entry) {
+    var pageCount = Math.max(0, entry.pages || 0);
+    var date = todayStr();
+    var reason = entry.reason || "";
+    var now = new Date().toISOString();
+    var assignmentBody = { studentId: studentId, date: date, reason: reason, pageCount: pageCount, createdAt: now };
+    if (db) {
+      try {
+        var ref = await db.collection("assignments").add(assignmentBody);
+        var pagePromises = [];
+        for (var i = 0; i < pageCount; i++) {
+          pagePromises.push(db.collection("pages").add({
+            studentId: studentId, assignmentId: ref.id, date: date,
+            submitted: false, submittedAt: null, createdAt: now
+          }));
+        }
+        await Promise.all(pagePromises);
+      } catch (e) { handleDbError(e); }
+    } else {
+      var assignmentId = uid();
+      assignmentBody.id = assignmentId;
+      state.assignments.push(assignmentBody);
+      for (var j = 0; j < pageCount; j++) {
+        state.pages.push({
+          id: uid(), studentId: studentId, assignmentId: assignmentId, date: date,
+          submitted: false, submittedAt: null, createdAt: now
+        });
+      }
+      saveLocal(); render();
+    }
+  }
+
+  async function togglePage(pageId, submitted) {
+    var patch = { submitted: submitted, submittedAt: submitted ? new Date().toISOString() : null };
+    if (db) {
+      try { await db.doc("pages/" + pageId).update(patch); }
+      catch (e) { handleDbError(e); }
+    } else {
+      var p = state.pages.find(function (x) { return x.id === pageId; });
+      if (p) { p.submitted = patch.submitted; p.submittedAt = patch.submittedAt; }
+      saveLocal(); render();
+    }
+  }
+
+  async function removeAssignment(assignmentId) {
+    var ok = await confirmDialog("이 기록을 삭제할까요? 해당 분량의 칸도 함께 사라집니다.");
+    if (!ok) return;
+    var relatedPages = state.pages.filter(function (p) { return p.assignmentId === assignmentId; });
+    if (db) {
+      try {
+        await db.doc("assignments/" + assignmentId).delete();
+        await Promise.all(relatedPages.map(function (p) { return db.doc("pages/" + p.id).delete(); }));
+      } catch (e) { handleDbError(e); }
+    } else {
+      state.assignments = state.assignments.filter(function (x) { return x.id !== assignmentId; });
+      state.pages = state.pages.filter(function (p) { return p.assignmentId !== assignmentId; });
+      saveLocal(); render();
+    }
+  }
+
+  async function saveSettings(next) {
+    if (db) {
+      try { await db.doc("settings/config").set(next); settingsSaved = true; }
+      catch (e) { handleDbError(e); }
+    } else {
+      state.settings = next; settingsSaved = true;
+      saveLocal();
+    }
+    render();
+  }
+
+  async function resetAll() {
+    var ok1 = await confirmDialog("모든 학생과 기록을 삭제합니다. 되돌릴 수 없습니다. 계속할까요?");
+    if (!ok1) return;
+    var ok2 = await confirmDialog("정말로 전체 초기화할까요? 한 번 더 확인합니다.");
+    if (!ok2) return;
+    if (db) {
+      try {
+        await Promise.all(state.students.map(function (s) { return db.doc("students/" + s.id).delete(); }));
+        await Promise.all(state.assignments.map(function (a) { return db.doc("assignments/" + a.id).delete(); }));
+        await Promise.all(state.pages.map(function (p) { return db.doc("pages/" + p.id).delete(); }));
+      } catch (e) { handleDbError(e); }
+    } else {
+      state.students = []; state.assignments = []; state.pages = [];
+      saveLocal();
+    }
+    render();
+  }
+
+  // ---------- derived data ----------
+  function suggestedPages(studentId) {
+    var count = state.assignments.filter(function (a) { return a.studentId === studentId; }).length;
+    return Math.max(0, state.settings.baseAmount + state.settings.increment * count);
+  }
+
+  function studentRows() {
+    var assignmentsById = {};
+    state.assignments.forEach(function (a) { assignmentsById[a.id] = a; });
+
+    var rows = state.students.map(function (s) {
+      var as = state.assignments.filter(function (a) { return a.studentId === s.id; });
+      var ps = state.pages.filter(function (p) { return p.studentId === s.id; });
+      var totalAssigned = ps.length;
+      var totalSubmitted = ps.filter(function (p) { return p.submitted; }).length;
+      var lastDate = as.reduce(function (m, a) { return a.date && a.date > m ? a.date : m; }, "");
+      var cellPages = ps.slice().sort(function (a, b) {
+        return (a.date || "").localeCompare(b.date || "") || (a.createdAt || "").localeCompare(b.createdAt || "");
+      }).map(function (p) {
+        var owner = assignmentsById[p.assignmentId];
+        return Object.assign({ reason: owner ? owner.reason : "" }, p);
+      });
+      var logAssignments = as.slice().sort(function (a, b) {
+        return (b.date || "").localeCompare(a.date || "") || (b.createdAt || "").localeCompare(a.createdAt || "");
+      }).map(function (a) {
+        var own = ps.filter(function (p) { return p.assignmentId === a.id; });
+        return Object.assign({ actualCount: own.length, submittedCount: own.filter(function (p) { return p.submitted; }).length }, a);
+      });
+      return {
+        id: s.id, name: s.name,
+        classroom: (typeof s.classroom === "number") ? s.classroom : null,
+        number: (typeof s.number === "number") ? s.number : null,
+        assignmentCount: as.length,
+        totalAssigned: totalAssigned,
+        totalSubmitted: totalSubmitted,
+        pending: totalAssigned - totalSubmitted,
+        lastDate: lastDate,
+        pages: cellPages,
+        assignments: logAssignments
+      };
+    });
+    if (ui.search.trim()) {
+      var q = ui.search.trim();
+      rows = rows.filter(function (r) { return r.name.indexOf(q) !== -1; });
+    }
+    if (ui.sort === "pending") {
+      rows.sort(function (a, b) { return b.pending - a.pending || a.name.localeCompare(b.name, "ko"); });
+    } else if (ui.sort === "recent") {
+      rows.sort(function (a, b) { return (b.lastDate || "").localeCompare(a.lastDate || ""); });
+    } else if (ui.sort === "number") {
+      rows.sort(function (a, b) {
+        var an = a.number === null ? Infinity : a.number;
+        var bn = b.number === null ? Infinity : b.number;
+        return an - bn || a.name.localeCompare(b.name, "ko");
+      });
+    } else {
+      rows.sort(function (a, b) { return a.name.localeCompare(b.name, "ko"); });
+    }
+    return rows;
+  }
+
+  // ---------- rendering ----------
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function (k) {
+      if (k === "class") node.className = attrs[k];
+      else if (k === "html") node.innerHTML = attrs[k];
+      else if (k.indexOf("on") === 0) node.addEventListener(k.slice(2), attrs[k]);
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) { if (c) node.appendChild(c); });
+    return node;
+  }
+  function text(t) { return document.createTextNode(t); }
+
+  function confirmDialog(message) {
+    return new Promise(function (resolve) {
+      var settled = false;
+      function finish(result) {
+        if (settled) return;
+        settled = true;
+        overlay.remove();
+        document.removeEventListener("keydown", onKey);
+        resolve(result);
+      }
+      function onKey(e) {
+        if (e.key === "Escape") finish(false);
+        if (e.key === "Enter") finish(true);
+      }
+      var cancelBtn = el("button", { class: "btn small", onclick: function () { finish(false); } }, [text("취소")]);
+      var okBtn = el("button", { class: "btn stamp small", onclick: function () { finish(true); } }, [text("삭제")]);
+      var box = el("div", { class: "modal-box" }, [
+        el("p", {}, [text(message)]),
+        el("div", { class: "modal-actions" }, [cancelBtn, okBtn])
+      ]);
+      var overlay = el("div", {
+        class: "modal-overlay",
+        onclick: function (ev) { if (ev.target === overlay) finish(false); }
+      }, [box]);
+      document.body.appendChild(overlay);
+      document.addEventListener("keydown", onKey);
+      okBtn.focus();
+    });
+  }
+
+  function todayStr() {
+    var d = new Date();
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+  function thisMonthStr() { return todayStr().slice(0, 7); }
+
+  function renderStats() {
+    var box = document.getElementById("stats");
+    box.innerHTML = "";
+    var monthCount = state.assignments.filter(function (a) { return (a.date || "").slice(0, 7) === thisMonthStr(); }).length;
+    var pendingSum = state.pages.filter(function (p) { return !p.submitted; }).length;
+    var stats = [
+      { n: state.students.length, l: "학생 수" },
+      { n: monthCount, l: "이번 달 부여 건수" },
+      { n: pendingSum, l: "미제출 누적 페이지", warn: pendingSum > 0 }
+    ];
+    stats.forEach(function (s) {
+      box.appendChild(el("div", { class: "stat" + (s.warn ? " warn" : "") }, [
+        el("div", { class: "n" }, [text(String(s.n))]),
+        el("div", { class: "l" }, [text(s.l)])
+      ]));
+    });
+  }
+
+  function renderEntry(a) {
+    var status = el("span", {
+      class: "tag" + (a.submittedCount >= a.actualCount && a.actualCount > 0 ? " done" : "")
+    }, [text(a.submittedCount + "/" + a.actualCount + " 제출")]);
+
+    var del = el("button", {
+      class: "btn ghost", onclick: function (ev) { ev.stopPropagation(); removeAssignment(a.id); }
+    }, [text("삭제")]);
+
+    return el("div", { class: "entry" }, [
+      el("span", { class: "d" }, [text(a.date || "-")]),
+      el("span", { class: "p" }, [text((a.actualCount || 0) + "장")]),
+      el("span", { class: "r" }, [text(a.reason || "")]),
+      el("span", { class: "status" }, [status]),
+      del
+    ]);
+  }
+
+  function renderDetail(row) {
+    var wrap = el("div", { class: "detail" });
+
+    var classInput = el("input", { type: "number", min: "0", step: "1", placeholder: "반" });
+    if (row.classroom !== null) classInput.value = String(row.classroom);
+    var numberInput = el("input", { type: "number", min: "0", step: "1", placeholder: "번호" });
+    if (row.number !== null) numberInput.value = String(row.number);
+    var nameInput = el("input", { type: "text", placeholder: "이름" });
+    nameInput.value = row.name;
+
+    var editSaveBtn = el("button", {
+      class: "btn small",
+      onclick: function () {
+        var cls = classInput.value === "" ? null : parseInt(classInput.value, 10);
+        var num = numberInput.value === "" ? null : parseInt(numberInput.value, 10);
+        var nm = nameInput.value.trim();
+        if (!nm) { nameInput.focus(); return; }
+        updateStudent(row.id, { classroom: (cls === null || isNaN(cls)) ? null : cls, number: (num === null || isNaN(num)) ? null : num, name: nm });
+      }
+    }, [text("저장")]);
+
+    wrap.appendChild(el("div", { class: "edit-student" }, [classInput, numberInput, nameInput, editSaveBtn]));
+
+    var pagesInput = el("input", { type: "number", min: "0", step: "1" });
+    pagesInput.value = String(suggestedPages(row.id));
+    var reasonInput = el("input", { type: "text", placeholder: "사유" });
+
+    var saveBtn = el("button", {
+      class: "btn primary small",
+      onclick: function () {
+        var pages = parseInt(pagesInput.value, 10);
+        if (isNaN(pages) || pages < 0) { pagesInput.focus(); return; }
+        addAssignment(row.id, { pages: pages, reason: reasonInput.value });
+        reasonInput.value = "";
+        pagesInput.value = String(suggestedPages(row.id) + (state.settings.increment || 0));
+      }
+    }, [text("부여")]);
+
+    var delStudentBtn = el("button", {
+      class: "btn ghost", onclick: function () { removeStudent(row.id); }
+    }, [text("학생 삭제")]);
+
+    wrap.appendChild(el("div", { class: "add-assignment" }, [pagesInput, reasonInput, saveBtn, delStudentBtn]));
+
+    if (row.assignments.length === 0) {
+      wrap.appendChild(el("div", { class: "hint" }, [text("아직 기록이 없습니다.")]));
+    } else {
+      row.assignments.forEach(function (a) { wrap.appendChild(renderEntry(a)); });
+    }
+    return wrap;
+  }
+
+  function buildCells(row) {
+    var wrap = el("div", { class: "cells" });
+    row.pages.forEach(function (p) {
+      var label = (p.date || "") + (p.reason ? " · " + p.reason : "") + " · " + (p.submitted ? "제출 완료(클릭하면 되돌리기)" : "미제출(클릭하면 제출 처리)");
+      wrap.appendChild(el("span", {
+        class: "cell" + (p.submitted ? " done" : ""),
+        title: label,
+        onclick: function (ev) { ev.stopPropagation(); togglePage(p.id, !p.submitted); }
+      }));
+    });
+    return wrap;
+  }
+
+  function renderRow(row) {
+    var isOpen = ui.expanded === row.id;
+    var frag = document.createDocumentFragment();
+
+    var metaText = row.classroom !== null && row.number !== null ? (row.classroom + "반 " + row.number + "번 ")
+      : row.number !== null ? (row.number + "번 ")
+      : row.classroom !== null ? (row.classroom + "반 ") : "";
+    var nameNode = el("div", { class: "name" }, [
+      metaText ? el("span", { class: "meta" }, [text(metaText)]) : null,
+      el("span", { class: "n" }, [text(row.name)])
+    ]);
+
+    var addBtn = el("button", {
+      class: "btn small",
+      onclick: function (ev) { ev.stopPropagation(); ui.expanded = isOpen ? null : row.id; render(); }
+    }, [text(isOpen ? "접기" : "+ 부여")]);
+
+    var head = el("div", { class: "row-head" }, [nameNode, el("div", { class: "row-actions" }, [addBtn])]);
+
+    var body = row.pages.length === 0
+      ? el("div", { class: "row-caption" }, [text("아직 기록이 없습니다.")])
+      : buildCells(row);
+
+    var caption = el("div", { class: "row-caption" }, [
+      text("부여 " + row.assignmentCount + "회 · 제출 " + row.totalSubmitted + "/" + row.totalAssigned + "장"),
+      row.pending > 0
+        ? el("span", { class: "rest" }, [text(" · " + row.pending + "장 남음")])
+        : (row.totalAssigned > 0 ? el("span", { class: "rest zero" }, [text(" · 모두 제출")]) : null)
+    ]);
+
+    var rowEl = el("div", { class: "row", onclick: function () { ui.expanded = isOpen ? null : row.id; render(); } },
+      row.pages.length === 0 ? [head, body] : [head, body, caption]);
+
+    frag.appendChild(rowEl);
+    if (isOpen) frag.appendChild(renderDetail(row));
+    return frag;
+  }
+
+  function renderList() {
+    var box = document.getElementById("list");
+    box.innerHTML = "";
+    if (!state.ready.students || !state.ready.assignments || !state.ready.pages) {
+      box.appendChild(el("div", { class: "empty" }, [text("불러오는 중…")]));
+      return;
+    }
+    var rows = studentRows();
+    if (rows.length === 0) {
+      box.appendChild(el("div", { class: "empty" }, [
+        text(state.students.length === 0 ? "아직 등록된 학생이 없습니다. 위에서 학생을 추가해 주세요." : "검색 결과가 없습니다.")
+      ]));
+      return;
+    }
+    rows.forEach(function (row) { box.appendChild(renderRow(row)); });
+  }
+
+  function render() {
+    renderStats();
+    renderList();
+    var base = document.getElementById("setBase");
+    var inc = document.getElementById("setIncrement");
+    if (document.activeElement !== base) base.value = state.settings.baseAmount;
+    if (document.activeElement !== inc) inc.value = state.settings.increment;
+    document.getElementById("settingsHint").textContent = fallback
+      ? "이 기기(브라우저)에만 저장됩니다."
+      : (settingsSaved ? "" : "아직 저장된 규칙이 없어 기본값을 사용 중입니다.");
+  }
+
+  // ---------- sync indicator / banner ----------
+  function setSyncOk() {
+    document.getElementById("syncDot").classList.remove("warn");
+    document.getElementById("syncLabel").textContent = "자동 저장됨";
+  }
+  function setSyncFallback() {
+    document.getElementById("syncDot").classList.add("warn");
+    document.getElementById("syncLabel").textContent = "이 기기에만 저장 중";
+  }
+  function showBanner(msg) {
+    var b = document.getElementById("banner");
+    b.textContent = msg;
+    b.classList.add("show");
+    clearTimeout(showBanner._t);
+    showBanner._t = setTimeout(function () { b.classList.remove("show"); }, 5000);
+  }
+
+  // ---------- wiring ----------
+  document.getElementById("addStudentBtn").addEventListener("click", function () {
+    var nameInput = document.getElementById("newStudentName");
+    var classInput = document.getElementById("newStudentClass");
+    var numberInput = document.getElementById("newStudentNumber");
+    var cls = classInput.value === "" ? NaN : parseInt(classInput.value, 10);
+    var num = numberInput.value === "" ? NaN : parseInt(numberInput.value, 10);
+    addStudent(nameInput.value, { classroom: cls, number: num });
+    nameInput.value = ""; classInput.value = ""; numberInput.value = "";
+    nameInput.focus();
+  });
+  document.getElementById("newStudentName").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") document.getElementById("addStudentBtn").click();
+  });
+
+  document.getElementById("bulkToggleBtn").addEventListener("click", function () {
+    ui.bulkOpen = !ui.bulkOpen;
+    document.getElementById("bulkNames").style.display = ui.bulkOpen ? "block" : "none";
+    document.getElementById("bulkAddWrap").style.display = ui.bulkOpen ? "block" : "none";
+    this.textContent = ui.bulkOpen ? "닫기" : "여러 명 한 번에 추가";
+  });
+  document.getElementById("bulkAddBtn").addEventListener("click", async function () {
+    var ta = document.getElementById("bulkNames");
+    var lines = ta.value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
+    for (var i = 0; i < lines.length; i++) {
+      var parts = lines[i].split(/\s+/);
+      var num = NaN, name = lines[i];
+      if (parts.length >= 2 && /^\d+$/.test(parts[0])) {
+        num = parseInt(parts[0], 10);
+        name = parts.slice(1).join(" ");
+      }
+      await addStudent(name, { number: num });
+    }
+    ta.value = "";
+  });
+
+  document.getElementById("settingsToggleBtn").addEventListener("click", function () {
+    var panel = document.getElementById("settingsPanel");
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
+  });
+  document.getElementById("saveSettingsBtn").addEventListener("click", function () {
+    var base = parseInt(document.getElementById("setBase").value, 10);
+    var inc = parseInt(document.getElementById("setIncrement").value, 10);
+    saveSettings({
+      baseAmount: isNaN(base) ? 0 : Math.max(0, base),
+      increment: isNaN(inc) ? 0 : Math.max(0, inc)
+    });
+  });
+  document.getElementById("resetAllBtn").addEventListener("click", resetAll);
+
+  document.getElementById("searchInput").addEventListener("input", function (e) {
+    ui.search = e.target.value; render();
+  });
+  document.getElementById("sortSelect").addEventListener("change", function (e) {
+    ui.sort = e.target.value; render();
+  });
+
+  initStore();
+})();
+</script>
+</body>
+</html>
